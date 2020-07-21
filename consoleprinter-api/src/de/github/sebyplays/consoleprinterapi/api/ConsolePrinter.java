@@ -6,36 +6,39 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.Console;
+import java.util.HashMap;
 
 import static org.fusesource.jansi.Ansi.Color.*;
 import static org.fusesource.jansi.Ansi.ansi;
 
 public class ConsolePrinter {
+    private HashMap<String, Ansi.Color> colorHashMap = new HashMap<String, Ansi.Color>(){
+        {
+            put("§0", BLACK);
+            put("§1", RED);
+            put("§2", GREEN);
+            put("§3", YELLOW);
+            put("§4", BLUE);
+            put("§5", MAGENTA);
+            put("§6", CYAN);
+            put("§7", WHITE);
+            put("§8", DEFAULT);
+        }
+    };
     private static ConsolePrinter consolePrinter = new ConsolePrinter();
     private SystemProperty systemProperty = new SystemProperty();
+
     public static void print(String string, boolean colored, boolean time){
-        // §0 == BLACK; §1 == RED; §2 == GREEN; §3 == YELLOW; §4 == BLUE; §5 == MAGENTA; §6== CYAN; §7 == WHITE; §8 == RESET;
-        DateUtil dateUtil = new DateUtil();
-        if (colored){
-            if(consolePrinter.systemProperty.getOS() == OperatingSystem.WINDOWS || consolePrinter.systemProperty.getOS() == OperatingSystem.LINUX){
-                consolePrinter.install();
-                string = consolePrinter.colorize(string);
-                consolePrinter.uninstall();
-            } else {
-                ConsolePrinter.print("Your System isn't officially supported yet!\n           Some features might not be available due to an unidentified OS.\n           Please report this incident here:\n           https://github.com/sebyplays/Java-ConsolePrinter-API/issues", false, true);
-            }
-        }
-        if(time){ System.out.println(dateUtil.getTime() + string); }else{ System.out.println(string); }
-        return;
+        System.out.println(getString(string, colored, time));
     }
 
     public static String getString(String string, boolean colored, boolean time){
         DateUtil dateUtil = new DateUtil();
         if (colored){
             if(consolePrinter.systemProperty.getOS() == OperatingSystem.WINDOWS || consolePrinter.systemProperty.getOS() == OperatingSystem.LINUX){
-                consolePrinter.install();
+                AnsiConsole.systemInstall();
                 string = consolePrinter.colorize(string);
-                consolePrinter.uninstall();
+                AnsiConsole.systemUninstall();
             } else {
                 ConsolePrinter.print("Your System isn't officially supported yet!\n           Some features might not be available due to an unidentified OS.\n           Please report this incident here:\n           https://github.com/sebyplays/Java-ConsolePrinter-API/issues", false, true);
             }
@@ -45,59 +48,16 @@ public class ConsolePrinter {
         return processedString;
     }
 
-    private void install(){
-        AnsiConsole.systemInstall();
-        return;
-    }
-
-    private void uninstall(){
-        AnsiConsole.systemUninstall();
-        return;
-    }
-
     private String colorize(String message){
         String result = "";
         String[] splitMessage = message.split(" ");
         for(int i = 0; i < splitMessage.length; i++){
-            if(splitMessage[i].contains("§0")){
-                splitMessage[i] = splitMessage[i].replaceAll("§0","");
-                splitMessage[i] = String.valueOf(ansi().eraseScreen().fg(BLACK).a(splitMessage[i]).fg(DEFAULT));
-            }
-            if(splitMessage[i].contains("§1")){
-                splitMessage[i] = splitMessage[i].replaceAll("§1","");
-                splitMessage[i] = String.valueOf(ansi().eraseScreen().fg(RED).a(splitMessage[i]).fg(DEFAULT));
-            }
-            if(splitMessage[i].contains("§2")){
-                splitMessage[i] = splitMessage[i].replaceAll("§2","");
-                splitMessage[i] = String.valueOf(ansi().eraseScreen().fg(GREEN).a(splitMessage[i]).fg(DEFAULT));
-            }
-            if(splitMessage[i].contains("§3")){
-                splitMessage[i] = splitMessage[i].replaceAll("§3","");
-                splitMessage[i] = String.valueOf(ansi().eraseScreen().fg(YELLOW).a(splitMessage[i]).fg(DEFAULT));
-            }
-            if(splitMessage[i].contains("§4")){
-                splitMessage[i] = splitMessage[i].replaceAll("§4","");
-                splitMessage[i] = String.valueOf(ansi().eraseScreen().fg(BLUE).a(splitMessage[i]).fg(DEFAULT));
-            }
-            if(splitMessage[i].contains("§5")){
-                splitMessage[i] = splitMessage[i].replaceAll("§5","");
-                splitMessage[i] = String.valueOf(ansi().eraseScreen().fg(MAGENTA).a(splitMessage[i]).fg(DEFAULT));
-            }
-            if(splitMessage[i].contains("§6")){
-                splitMessage[i] = splitMessage[i].replaceAll("§6","");
-                splitMessage[i] = String.valueOf(ansi().eraseScreen().fg(CYAN).a(splitMessage[i]).fg(DEFAULT));
-            }
-            if(splitMessage[i].contains("§7")){
-                splitMessage[i] = splitMessage[i].replaceAll("§7","");
-                splitMessage[i] = String.valueOf(ansi().eraseScreen().fg(WHITE).a(splitMessage[i]).fg(DEFAULT));
-            }
-            if(splitMessage[i].contains("§8")){
-                splitMessage[i] = splitMessage[i].replaceAll("§8","");
-                splitMessage[i] = String.valueOf(ansi().eraseScreen().fg(DEFAULT).a(splitMessage[i]).fg(DEFAULT));
+            if(splitMessage[i].contains("§" + i)){
+                splitMessage[i] = splitMessage[i].replaceAll("§" + i,"");
+                splitMessage[i] = String.valueOf(ansi().eraseScreen().fg(colorHashMap.get("§" + i)).a(splitMessage[i]).fg(DEFAULT));
             }
             result = result + splitMessage[i] + " ";
         }
         return result;
     }
-
 }
