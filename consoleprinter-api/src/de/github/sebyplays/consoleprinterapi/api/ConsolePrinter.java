@@ -35,7 +35,7 @@ public class ConsolePrinter {
     public static String getString(String string, boolean colored, boolean time){
         DateUtil dateUtil = new DateUtil();
         if (colored){
-            if(consolePrinter.systemProperty.getOS() == OperatingSystem.WINDOWS || consolePrinter.systemProperty.getOS() == OperatingSystem.LINUX){
+            if(consolePrinter.systemProperty.getOS() != OperatingSystem.OTHER){
                 AnsiConsole.systemInstall();
                 string = consolePrinter.colorize(string);
                 AnsiConsole.systemUninstall();
