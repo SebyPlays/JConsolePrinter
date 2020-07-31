@@ -12,6 +12,9 @@ public class SystemProperty {
             if(System.getProperty("os.name").toLowerCase().contains("nux")){
                 return OperatingSystem.LINUX;
             }
+            if(System.getProperty("os.name").toLowerCase().contains("mac")){
+                return OperatingSystem.MACOS;
+            }
             return OperatingSystem.OTHER;
     }
 }
